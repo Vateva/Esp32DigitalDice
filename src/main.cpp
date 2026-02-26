@@ -24,7 +24,7 @@ void handleWakeFromButton();
 
 void setup() {
 
-  gpio_hold_dis((gpio_num_t)DISPLAY_POWER_PIN); // disable hold on GPIO 4
+  gpio_hold_dis((gpio_num_t)DISPLAY_POWER_PIN); // disable hold on GPIO 3
   gpio_deep_sleep_hold_dis(); // disable deep sleep hold function
 
 
@@ -103,7 +103,7 @@ void showWelcomeMessage() {
   int frame = 0;
   unsigned long startTime = millis();
 
-  while (millis() - startTime < 4000) { // animate for 3 seconds
+  while (millis() - startTime < 4000) { // animate for 4 seconds
     display.clearDisplay();
     display.drawBitmap(0, 4, greyhound_allArray[frame], 128, 40, WHITE);
     display.drawBitmap(0, 44, welcome_image_dice_allArray[0], 128, 16, WHITE);
@@ -164,7 +164,7 @@ void handleWakeFromButton() {
     esp_sleep_enable_timer_wakeup(getTimeToClearDisplay() * 1000);
 
     rollDice();
-    gpio_hold_en((gpio_num_t)DISPLAY_POWER_PIN); // enable hold on GPIO 4
+    gpio_hold_en((gpio_num_t)DISPLAY_POWER_PIN); // enable hold on GPIO 3
     gpio_deep_sleep_hold_en(); // enable hold function during deep sleep
     goToDeepSleep();
   }

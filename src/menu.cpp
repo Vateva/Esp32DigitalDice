@@ -154,17 +154,17 @@ void drawMenu() {
         int rollIndex = i;
 
         // counts non-minus one dice in this roll
-        int diceCount = 0;
+        int diceInRoll = 0;
         for (int j = 0; j < 8; j++) {
           if (rollHistory[rollIndex][j] != -1) {
-            diceCount++;
+            diceInRoll++;
           }
         }
 
         // displays dice values separated by commas
-        for (int j = 0; j < diceCount; j++) {
+        for (int j = 0; j < diceInRoll; j++) {
           display.print(rollHistory[rollIndex][j]);
-          if (j < diceCount - 1) {
+          if (j < diceInRoll - 1) {
             display.print("-");
           }
         }
@@ -431,7 +431,7 @@ void executeMenuAction() {
       break;
     case 4: // back
       currentMenu = MENU_MAIN;
-      currentSelection = 1; // return to configuration option
+      currentSelection = 2; // return to configuration option
       drawMenu();
       break;
     }
