@@ -4,6 +4,19 @@ Simple digital dice using ESP32-C3 Super Mini with 1.3" OLED display and momenta
 
 Main objective is to learn more about git/github and microcontrollers/C.
 
+## Table of Contents
+- [Hardware Components](#hardware-components)
+- [Test Wiring](#test-wiring)
+- [Final Product](#final-product)
+- [Demonstration Videos](#demonstration-videos)
+- [Pinout Configuration](#pinout-configuration)
+- [Key Features](#key-features)
+- [Software Architecture](#software-architecture)
+- [Build Environment](#build-environment)
+- [Configuration](#configuration)
+- [Usage](#usage)
+- [License](#license)
+
 ## Hardware Components
 
 - ESP32 C3 Super Mini
@@ -95,9 +108,89 @@ I glued the TP4057 1A on top of the pouch and glued it to the bottom of the casi
 
 Here are a couple of videos showcasing the dice rolling and the menu:
 
-### Dice Roll 
+### Dice Roll
 
 [dice roll](https://github.com/user-attachments/assets/2823d9ca-534b-4626-b369-a73eaf9733b9)
 ### Menu
 
 [menu](https://github.com/user-attachments/assets/94b1bece-dcf2-499f-b2bd-8fa810c06be8)
+
+## Pinout Configuration
+
+```cpp
+SDA_PIN           = GPIO 5   // I2C data
+SCL_PIN           = GPIO 6   // I2C clock
+BUTTON_PIN        = GPIO 4   // Momentary button (active low, internal pullup)
+ACCE_INT_PIN      = GPIO 2   // LSM6DS3 interrupt (wake-on-motion)
+DISPLAY_POWER_PIN = GPIO 3   // Display power control
+```
+
+## Key Features
+
+### Dice
+Supports Coin, D4, D6, D8, D10, D12, D20 -- roll up to 8 dice simultaneously across any combination. Bitmap-based rolling animations with configurable stagger timing. Dynamic sizing: 64x64 bitmaps for 1-2 dice, 32x32 for 3+.
+
+### Menu System
+Single-button navigation: short press to cycle through items, long press (300ms) to select.
+
+- **Dice** -- select dice types and quantities
+- **Roll History** -- view last 6 rolls
+- **Configuration** -- brightness, time to clear, stagger, accelerometer toggle
+- **Exit** -- return to sleep
+
+### Power Management
+- Deep sleep between rolls with GPIO and timer wakeup
+- CPU frequency at 80 MHz
+- Display power controlled via GPIO with RTC hold during sleep
+- RTC memory for fast config access (flash only on cold boot or config changes)
+
+### Accelerometer
+LSM6DS3 in low-power mode at 52 Hz with gyroscope disabled. Shake to roll. Can be toggled off in the config menu to save power.
+
+## Software Architecture
+
+| Module | Purpose |
+|--------|---------|
+| `main.cpp` | Setup, wake handling, deep sleep management |
+| `rollDice.cpp` | Dice rolling animation and result display |
+| `menu.cpp` | Menu navigation, config management, flash/RTC storage |
+| `lsm6ds3_acce.cpp` | LSM6DS3 accelerometer I2C driver |
+| `utils.cpp` | Display utility functions (clearing, brightness) |
+| `config.h` | Pin definitions and configuration constants |
+
+## Build Environment
+
+```ini
+[env:lolin_c3_mini]
+platform = espressif32
+board = lolin_c3_mini
+framework = arduino
+upload_speed = 921600
+build_flags = -D ARDUINO_USB_CDC_ON_BOOT=1
+```
+
+**Dependencies:** Adafruit GFX v1.11.9, Adafruit BusIO v1.14.5, Adafruit_ESP32_SH1106 v1.0.2
+
+## Configuration
+
+Adjustable in `config.h`:
+
+```cpp
+DEBOUNCE_DELAY_MS               = 100    // button debounce
+LONG_PRESS_MS_ENTER_MENU        = 500    // hold to open menu
+LONG_PRESS_MENU_SELECTION       = 300    // hold to select menu item
+BRIGHTNESS_DEFAULT              = 128    // 50%
+TIME_TO_CLEAR_DISPLAY_DEFAULT   = 3500   // 3.5 seconds
+STAGGER_DEFAULT                 = 2      // frames between dice animations
+ACCELEROMETER_DEFAULT           = 1      // enabled
+```
+
+## Usage
+- **Short press:** Roll dice
+- **Shake** (accelerometer on): Roll dice
+- **Long press (500ms):** Open menu
+- **Menu navigation:** Short press to cycle, long press to select
+- **Menu options:** Dice selection, roll history, brightness, clear time, stagger, accelerometer toggle
+
+## License
+MIT License - feel free to use, modify, and distribute.
